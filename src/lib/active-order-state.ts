@@ -140,6 +140,13 @@ export function buildActiveOrderStateBlock(input: ActiveOrderStateInput): string
     `طريقة الدفع: ${show("طريقة الدفع")}`,
   ];
 
+  if (!orderOwnerName && chatName) {
+    lines.push(
+      `اسم المخاطبة في الشات: ${chatName} — ده أسلوب مناداة فقط وليس اسم صاحب الطلب. ممنوع نسخه في create_order، وممنوع اعتباره بيان مكتمل. لما توصل لخطوة تسجيل الطلب اسأل: «الطلب هيتسجّل باسم مين يا فندم؟».`,
+    );
+  }
+
+
   const shippingZone = clean(input.shippingZone);
   if (shippingZone) lines.push(`منطقة الشحن المحسومة: ${shippingZone}`);
 
