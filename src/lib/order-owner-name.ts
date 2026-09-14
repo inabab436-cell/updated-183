@@ -52,6 +52,25 @@ export function customerAnsweredWithName(text: string | null | undefined): boole
   return words.length >= 1 && words.length <= 5 && words.every((w) => w.length >= 2);
 }
 
+/**
+ * The customer volunteered a full identity line — a name written next to a
+ * phone number (and usually an address) in the SAME message, unprompted.
+ * That name IS the order name: nobody writes their phone and address next to
+ * a nickname. Re-asking "الطلب هيتسجّل باسم مين؟" after such a message is the
+ * exact failure this guard prevents.
+ */
+export function customerGaveIdentityLine(text: string | null | undefined): boolean {
+  const raw = String(text ?? "").trim();
+  if (!raw) return false;
+  const digits = raw.replace(/[^\d٠-٩]/g, "");
+  if (digits.length < 10) return false;
+  // At least two letter-only words (a first name plus something else).
+  const words = raw
+    .split(/[\s,،.\-/]+/)
+    .filter((w) => w.length >= 2 && !/[\d٠-٩]/.test(w));
+  return words.length >= 2;
+}
+
 export interface OrderOwnerNameInput {
   /** Value stored in the structured order state, if any. */
   value?: string | null;
