@@ -52,6 +52,7 @@ const NAV: NavItem[] = [
   { to: "/shipping", title: "جدول الشحن", desc: "أسعار الشحن حسب الدولة والمنطقة.", icon: <Truck className="h-5 w-5" /> },
   { to: "/contacts", title: "معلومات التواصل", desc: "الهاتف، البريد، والعناوين ووسائل التواصل.", icon: <PhoneCall className="h-5 w-5" /> },
   { to: "/missing-info" as any, title: "المعلومات الناقصة", desc: "كل معلومة لم يجدها الوكيل: من سأل عنها، وما تمت إضافته، والعملاء الذين رجع إليهم بالرد.", icon: <HelpCircle className="h-5 w-5" /> },
+  { to: "/settings/agent" as any, title: "هوية الوكيل الذكي", desc: "اختر اسم الوكيل وجنسه؛ يعرّف نفسه بالاسم مع اسم متجرك ويلتزم بصيغة الحديث.", icon: <UserRound className="h-5 w-5" /> },
   { to: "/settings/notifications" as any, title: "إعدادات الإشعارات", desc: "تحكم في إشعارات البريد الإلكتروني التي تصل إلى حسابك.", icon: <Bell className="h-5 w-5" /> },
   { to: "/awaiting-payment" as any, title: "بانتظار استكمال الدفع", desc: "العملاء الذين اختاروا طريقة دفع يدوية والوكيل نائم في محادثاتهم حتى تؤكد الدفع.", icon: <Moon className="h-5 w-5" />, badgeKey: "awaiting_payment" },
   { to: "/settings/payment-methods" as any, title: "طرق الدفع", desc: "اختر خيارات الدفع التي تقبلها وحدّد سلوك الوكيل الذكي مع كل طريقة.", icon: <CreditCard className="h-5 w-5" /> },
