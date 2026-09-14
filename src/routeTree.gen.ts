@@ -31,7 +31,6 @@ import { Route as ApiVisitorRouteImport } from './routes/api/visitor'
 import { Route as CSlugRouteImport } from './routes/c.$slug'
 import { Route as ChatSlugRouteImport } from './routes/chat.$slug'
 import { Route as ConversationIdRouteImport } from './routes/conversation.$id'
-import { Route as SettingsAgentRouteImport } from './routes/settings.agent'
 import { Route as SettingsNotificationsRouteImport } from './routes/settings.notifications'
 import { Route as SettingsPaymentMethodsRouteImport } from './routes/settings.payment-methods'
 import { Route as SignupIndexRouteImport } from './routes/signup.index'
@@ -149,11 +148,6 @@ const ConversationIdRoute = ConversationIdRouteImport.update({
   path: '/conversation/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SettingsAgentRoute = SettingsAgentRouteImport.update({
-  id: '/settings/agent',
-  path: '/settings/agent',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
   id: '/settings/notifications',
   path: '/settings/notifications',
@@ -208,7 +202,6 @@ export interface FileRoutesByFullPath {
   '/c/$slug': typeof CSlugRouteWithChildren
   '/chat/$slug': typeof ChatSlugRoute
   '/conversation/$id': typeof ConversationIdRoute
-  '/settings/agent': typeof SettingsAgentRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
   '/settings/payment-methods': typeof SettingsPaymentMethodsRoute
   '/signup/verify': typeof SignupVerifyRoute
@@ -238,7 +231,6 @@ export interface FileRoutesByTo {
   '/api/visitor': typeof ApiVisitorRoute
   '/chat/$slug': typeof ChatSlugRoute
   '/conversation/$id': typeof ConversationIdRoute
-  '/settings/agent': typeof SettingsAgentRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
   '/settings/payment-methods': typeof SettingsPaymentMethodsRoute
   '/signup/verify': typeof SignupVerifyRoute
@@ -270,7 +262,6 @@ export interface FileRoutesById {
   '/c/$slug': typeof CSlugRouteWithChildren
   '/chat/$slug': typeof ChatSlugRoute
   '/conversation/$id': typeof ConversationIdRoute
-  '/settings/agent': typeof SettingsAgentRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
   '/settings/payment-methods': typeof SettingsPaymentMethodsRoute
   '/signup/verify': typeof SignupVerifyRoute
@@ -303,7 +294,6 @@ export interface FileRouteTypes {
     | '/c/$slug'
     | '/chat/$slug'
     | '/conversation/$id'
-    | '/settings/agent'
     | '/settings/notifications'
     | '/settings/payment-methods'
     | '/signup/verify'
@@ -333,7 +323,6 @@ export interface FileRouteTypes {
     | '/api/visitor'
     | '/chat/$slug'
     | '/conversation/$id'
-    | '/settings/agent'
     | '/settings/notifications'
     | '/settings/payment-methods'
     | '/signup/verify'
@@ -364,7 +353,6 @@ export interface FileRouteTypes {
     | '/c/$slug'
     | '/chat/$slug'
     | '/conversation/$id'
-    | '/settings/agent'
     | '/settings/notifications'
     | '/settings/payment-methods'
     | '/signup/verify'
@@ -396,7 +384,6 @@ export interface RootRouteChildren {
   CSlugRoute: typeof CSlugRouteWithChildren
   ChatSlugRoute: typeof ChatSlugRoute
   ConversationIdRoute: typeof ConversationIdRoute
-  SettingsAgentRoute: typeof SettingsAgentRoute
   SettingsNotificationsRoute: typeof SettingsNotificationsRoute
   SettingsPaymentMethodsRoute: typeof SettingsPaymentMethodsRoute
   SignupVerifyRoute: typeof SignupVerifyRoute
@@ -559,13 +546,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConversationIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/settings/agent': {
-      id: '/settings/agent'
-      path: '/settings/agent'
-      fullPath: '/settings/agent'
-      preLoaderRoute: typeof SettingsAgentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/settings/notifications': {
       id: '/settings/notifications'
       path: '/settings/notifications'
@@ -646,7 +626,6 @@ const rootRouteChildren: RootRouteChildren = {
   CSlugRoute: CSlugRouteWithChildren,
   ChatSlugRoute: ChatSlugRoute,
   ConversationIdRoute: ConversationIdRoute,
-  SettingsAgentRoute: SettingsAgentRoute,
   SettingsNotificationsRoute: SettingsNotificationsRoute,
   SettingsPaymentMethodsRoute: SettingsPaymentMethodsRoute,
   SignupVerifyRoute: SignupVerifyRoute,
