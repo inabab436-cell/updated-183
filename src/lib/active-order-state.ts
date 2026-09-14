@@ -101,8 +101,13 @@ export function buildActiveOrderStateBlock(input: ActiveOrderStateInput): string
     return q && /^\d+$/.test(q) && Number(q) > 0 ? q : null;
   })();
 
+  const chatName = clean(input.customer?.name);
+  const orderOwnerName =
+    clean(item?.customer_name as string | undefined) ??
+    (input.nameIsOrderOwner === true ? chatName : null);
+
   const fields: Array<{ key: string; label: string; value: string | null }> = [
-    { key: "الاسم", label: "الاسم", value: clean(input.customer?.name) },
+    { key: "الاسم", label: "الاسم", value: orderOwnerName },
     { key: "الموبايل", label: "الموبايل", value: clean(input.customer?.phone) },
     { key: "العنوان", label: "العنوان", value: clean(input.customer?.address) },
     {
