@@ -90,6 +90,14 @@ export async function resolvePaymentMethodChoice<T extends PaymentMethodLike>(
     return messages.some((m) => nameMatchScore(method.name, m) >= 0.6);
   };
 
+  // The choice the customer already made earlier in this conversation. It was
+  // recorded from their own words, so it stays valid until they change it.
+  const remembered = input.previouslyChosen
+    ? (methods.find((m) => normalize(m.name) === normalize(input.previouslyChosen!)) ??
+       fuzzyPick(methods, (m) => m.name, input.previouslyChosen, { threshold: 0.6 }).match ??
+       null)
+    : null;
+
   const messages = (input.customerMessages ?? [])
     .filter((m): m is string => typeof m === "string" && m.trim().length > 0)
     .slice(0, 60)
