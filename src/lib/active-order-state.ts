@@ -102,9 +102,9 @@ export function buildActiveOrderStateBlock(input: ActiveOrderStateInput): string
   })();
 
   const chatName = clean(input.customer?.name);
+  // A real order row means the name was already registered with the order.
   const orderOwnerName =
-    clean(item?.customer_name as string | undefined) ??
-    (input.nameIsOrderOwner === true ? chatName : null);
+    input.nameIsOrderOwner === true || clean(input.order?.order_number) ? chatName : null;
 
   const fields: Array<{ key: string; label: string; value: string | null }> = [
     { key: "الاسم", label: "الاسم", value: orderOwnerName },
