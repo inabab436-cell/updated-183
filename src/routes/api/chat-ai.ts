@@ -2425,6 +2425,25 @@ export const Route = createFileRoute("/api/chat-ai")({
             orderState = promoteOrderState(orderState, ["phone"], "confirmed");
           }
 
+          // ORDER OWNER NAME — the conversational name is only a way to address
+          // the person. It becomes the ORDER name solely when the customer
+          // answered the order-name question (or it is already confirmed).
+          const { resolveOrderOwnerName } = await import("@/lib/order-owner-name");
+          const lastAssistantText = ((history ?? []) as MessageRow[])
+            .filter((m) => m.role === "assistant")
+            .map((m) => String(m.content ?? ""))
+            .pop() ?? null;
+          const ownerName = resolveOrderOwnerName({
+            value: orderStateValueOf(orderState, "name"),
+            stage: orderState.fields.name?.stage ?? null,
+            lastAssistantText,
+            lastCustomerText: String(message ?? ""),
+          });
+          if (ownerName.answeredNow) {
+            orderState = promoteOrderState(orderState, ["name"], "confirmed");
+          }
+
+
           // An existing order row is the strongest state there is: it freezes
           // everything it carries and closes the collection phase.
           if (latestConversationOrder) {
@@ -2577,6 +2596,10 @@ export const Route = createFileRoute("/api/chat-ai")({
                 phone: orderStateValueOf(orderState, "phone") ?? effectivePhoneForState,
                 address: orderStateValueOf(orderState, "address") ?? customer?.address ?? null,
               },
+              nameIsOrderOwner:
+                ownerName.isOrderOwner ||
+                (orderState.fields.name?.stage === "confirmed" ||
+                  orderState.fields.name?.stage === "committed"),
               order: latestConversationOrder as any,
               selection: selectionFromOrderState(orderState),
               shippingZone: orderStateValueOf(orderState, "shipping_zone"),
