@@ -18,6 +18,13 @@ export interface ActiveOrderStateInput {
     phone?: string | null;
     address?: string | null;
   } | null;
+  /**
+   * TRUE only when the stored name is the name the ORDER must be registered
+   * under (the customer answered the order-name question, or the name is
+   * already confirmed/committed). FALSE means the name is only a way to
+   * address the person in chat, so "الاسم" stays a missing order field.
+   */
+  nameIsOrderOwner?: boolean;
   /** Latest order row of this conversation, if one exists. */
   order?: {
     order_number?: string | null;
