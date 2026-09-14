@@ -41,10 +41,21 @@ describe("buildActiveOrderStateBlock", () => {
   it("lists only the genuinely missing fields", () => {
     const out = buildActiveOrderStateBlock({
       customer: { name: "أحمد", phone: "  ", address: null },
+      nameIsOrderOwner: true,
       order: { items: [{ product_name: "تيشيرت", size: "M", quantity: 1 }] },
     });
     expect(out).toContain("الحقول الناقصة فقط: [الموبايل، العنوان، اللون، طريقة الدفع]");
     expect(out).not.toContain("رقم الطلب المسجَّل");
+  });
+
+  it("keeps the chat name out of the order fields until it is the order owner", () => {
+    const out = buildActiveOrderStateBlock({
+      customer: { name: "نور", phone: "01000000000", address: "بلبيس، الشرقية" },
+      selection: { product_name: "هودي", color: "بيج", size: "S", quantity: "1", payment_method: "فودافون كاش" },
+    });
+    expect(out).toContain("الاسم: غير معروف");
+    expect(out).toContain("اسم المخاطبة في الشات: نور");
+    expect(out).toContain("الحقول الناقصة فقط: [الاسم]");
   });
 
   it("treats placeholder and zero-quantity values as missing", () => {
@@ -113,6 +124,7 @@ describe("selection fallback (long conversations)", () => {
   it("uses the conversation selection when no order row exists yet", () => {
     const out = buildActiveOrderStateBlock({
       customer: { name: "منى", phone: "01000000000", address: "المعادي" },
+      nameIsOrderOwner: true,
       selection: { product_name: "هودي بيج", color: "بيج", size: "L", quantity: "2", payment_method: "الدفع عند الاستلام" },
     });
     expect(out).toContain("المنتج: هودي بيج | اللون: بيج | المقاس: L | الكمية: 2");
