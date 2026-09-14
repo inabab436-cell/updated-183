@@ -1288,6 +1288,16 @@ export const Route = createFileRoute("/api/chat-ai")({
           };
           const merchantDataPromise = readMerchantData();
 
+          // Owner-chosen agent identity (name + gender). Never blocks the run.
+          const agentIdentityPromise = (async () => {
+            try {
+              const { loadAgentIdentity } = await merchantDataMod;
+              return await loadAgentIdentity(supabase, merchant_id);
+            } catch {
+              return { name: null, gender: "unspecified" as const };
+            }
+          })();
+
           // Merchant payment methods (only the enabled ones reach the agent).
           const paymentMethodsPromise = (async () => {
             const { loadEnabledPaymentMethods } = await merchantDataMod;
@@ -1981,10 +1991,21 @@ export const Route = createFileRoute("/api/chat-ai")({
             console.error("[chat-ai] shipping priority skipped");
           }
 
+          // Owner-chosen agent name / gender. Empty string when not chosen.
+          let agentIdentityBlock = "";
+          try {
+            const identity = await agentIdentityPromise;
+            const { buildAgentIdentityBlock } = await import("@/lib/agent-identity");
+            agentIdentityBlock = buildAgentIdentityBlock(identity, merchantData?.brand?.name ?? null);
+          } catch {
+            agentIdentityBlock = "";
+          }
+
           const systemPrompt =
             // Inventory is intentionally absent here. It appears exactly once,
             // in the trailing snapshot that is rebuilt for every model pass.
             buildSystemPrompt() +
+            agentIdentityBlock +
             customerContext +
             snapshotPointer +
             paymentBlock +
