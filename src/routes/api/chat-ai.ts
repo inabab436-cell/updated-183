@@ -2596,6 +2596,10 @@ export const Route = createFileRoute("/api/chat-ai")({
                 phone: orderStateValueOf(orderState, "phone") ?? effectivePhoneForState,
                 address: orderStateValueOf(orderState, "address") ?? customer?.address ?? null,
               },
+              nameIsOrderOwner:
+                ownerName.isOrderOwner ||
+                (orderState.fields.name?.stage === "confirmed" ||
+                  orderState.fields.name?.stage === "committed"),
               order: latestConversationOrder as any,
               selection: selectionFromOrderState(orderState),
               shippingZone: orderStateValueOf(orderState, "shipping_zone"),
