@@ -103,11 +103,16 @@ export async function resolvePaymentMethodChoice<T extends PaymentMethodLike>(
     .slice(0, 60)
     .reverse();
   const conversation = messages.join("\n");
-  const fallback = (): ResolvePaymentMethodResult<T> => ({
-    method: exact,
-    chosenByCustomer: !!exact && statedByCustomer(exact, messages),
-    source: "fallback",
-  });
+  const fallback = (): ResolvePaymentMethodResult<T> => {
+    if (exact && statedByCustomer(exact, messages)) {
+      return { method: exact, chosenByCustomer: true, source: "fallback" };
+    }
+    // Never lose a choice the customer already made earlier.
+    if (remembered) {
+      return { method: remembered, chosenByCustomer: true, source: "remembered" };
+    }
+    return { method: exact, chosenByCustomer: false, source: "fallback" };
+  };
 
   const key = input.lovableApiKey;
   const doFetch = input.fetchImpl ?? fetch;
