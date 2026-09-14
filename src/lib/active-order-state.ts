@@ -18,13 +18,6 @@ export interface ActiveOrderStateInput {
     phone?: string | null;
     address?: string | null;
   } | null;
-  /**
-   * TRUE only when the stored name is the name the ORDER must be registered
-   * under (the customer answered the order-name question, or the name is
-   * already confirmed/committed). FALSE means the name is only a way to
-   * address the person in chat, so "الاسم" stays a missing order field.
-   */
-  nameIsOrderOwner?: boolean;
   /** Latest order row of this conversation, if one exists. */
   order?: {
     order_number?: string | null;
@@ -101,13 +94,8 @@ export function buildActiveOrderStateBlock(input: ActiveOrderStateInput): string
     return q && /^\d+$/.test(q) && Number(q) > 0 ? q : null;
   })();
 
-  const chatName = clean(input.customer?.name);
-  // A real order row means the name was already registered with the order.
-  const orderOwnerName =
-    input.nameIsOrderOwner === true || clean(input.order?.order_number) ? chatName : null;
-
   const fields: Array<{ key: string; label: string; value: string | null }> = [
-    { key: "الاسم", label: "الاسم", value: orderOwnerName },
+    { key: "الاسم", label: "الاسم", value: clean(input.customer?.name) },
     { key: "الموبايل", label: "الموبايل", value: clean(input.customer?.phone) },
     { key: "العنوان", label: "العنوان", value: clean(input.customer?.address) },
     {
@@ -139,13 +127,6 @@ export function buildActiveOrderStateBlock(input: ActiveOrderStateInput): string
     `المنتج: ${show("المنتج")} | اللون: ${show("اللون")} | المقاس: ${show("المقاس")} | الكمية: ${show("الكمية")}`,
     `طريقة الدفع: ${show("طريقة الدفع")}`,
   ];
-
-  if (!orderOwnerName && chatName) {
-    lines.push(
-      `اسم المخاطبة في الشات: ${chatName} — ده أسلوب مناداة فقط وليس اسم صاحب الطلب. ممنوع نسخه في create_order، وممنوع اعتباره بيان مكتمل. لما توصل لخطوة تسجيل الطلب اسأل: «الطلب هيتسجّل باسم مين يا فندم؟».`,
-    );
-  }
-
 
   const shippingZone = clean(input.shippingZone);
   if (shippingZone) lines.push(`منطقة الشحن المحسومة: ${shippingZone}`);
