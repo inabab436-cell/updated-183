@@ -1288,6 +1288,16 @@ export const Route = createFileRoute("/api/chat-ai")({
           };
           const merchantDataPromise = readMerchantData();
 
+          // Owner-chosen agent identity (name + gender). Never blocks the run.
+          const agentIdentityPromise = (async () => {
+            try {
+              const { loadAgentIdentity } = await merchantDataMod;
+              return await loadAgentIdentity(supabase, merchant_id);
+            } catch {
+              return { name: null, gender: "unspecified" as const };
+            }
+          })();
+
           // Merchant payment methods (only the enabled ones reach the agent).
           const paymentMethodsPromise = (async () => {
             const { loadEnabledPaymentMethods } = await merchantDataMod;
