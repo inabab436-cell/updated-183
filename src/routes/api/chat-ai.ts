@@ -3001,6 +3001,10 @@ export const Route = createFileRoute("/api/chat-ai")({
                 requested: rawPayment,
                 methods: paymentMethods,
                 customerMessages: customerTexts,
+                // A method the customer already settled on earlier in this
+                // conversation must not be lost when the latest messages only
+                // talk about the amount ("هدفع مقدم") or simply agree ("توكل").
+                previouslyChosen: orderStateValueOf(orderState, "payment_method"),
               });
               chosenMethod = resolved.method;
               if (!chosenMethod || !resolved.chosenByCustomer) {
