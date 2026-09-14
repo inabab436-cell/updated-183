@@ -155,6 +155,15 @@ export async function resolvePaymentMethodChoice<T extends PaymentMethodLike>(
     conversation,
     "",
     `The sales agent believes the customer chose: "${input.requested}"`,
+    ...(remembered
+      ? [
+          "",
+          `Earlier in THIS conversation the customer already chose: "${remembered.name}". ` +
+            "That choice still stands unless they clearly changed it. A later message about the AMOUNT " +
+            "(e.g. 'هدفع مقدم' = pay a deposit) or a plain agreement ('توكل', 'تمام', 'ماشي') is NOT a change " +
+            "of method: keep returning that method with stated_by_customer=true.",
+        ]
+      : []),
   ].join("\n");
 
   try {
