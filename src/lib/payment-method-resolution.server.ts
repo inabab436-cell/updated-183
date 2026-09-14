@@ -25,6 +25,13 @@ export interface ResolvePaymentMethodInput<T extends PaymentMethodLike = Payment
   methods: T[];
   /** Every message the CUSTOMER typed in this conversation (newest first is fine). */
   customerMessages: Array<string | null | undefined>;
+  /**
+   * The payment method the customer ALREADY settled on earlier in this same
+   * conversation, read from the persisted structured order state. A later
+   * message that only talks about the amount ("هدفع مقدم") or simply agrees
+   * ("توكل") must not erase that choice and send the agent back to re-asking.
+   */
+  previouslyChosen?: string | null;
   /** Injectable for tests. */
   fetchImpl?: typeof fetch;
 }
@@ -34,7 +41,7 @@ export interface ResolvePaymentMethodResult<T extends PaymentMethodLike = Paymen
   method: T | null;
   /** True when the CUSTOMER themselves expressed this method (not assumed). */
   chosenByCustomer: boolean;
-  source: "exact" | "ai" | "fallback";
+  source: "exact" | "ai" | "fallback" | "remembered";
 }
 
 import { fuzzyPick, nameMatchScore } from "./fuzzy-match";
@@ -83,16 +90,29 @@ export async function resolvePaymentMethodChoice<T extends PaymentMethodLike>(
     return messages.some((m) => nameMatchScore(method.name, m) >= 0.6);
   };
 
+  // The choice the customer already made earlier in this conversation. It was
+  // recorded from their own words, so it stays valid until they change it.
+  const remembered = input.previouslyChosen
+    ? (methods.find((m) => normalize(m.name) === normalize(input.previouslyChosen!)) ??
+       fuzzyPick(methods, (m) => m.name, input.previouslyChosen, { threshold: 0.6 }).match ??
+       null)
+    : null;
+
   const messages = (input.customerMessages ?? [])
     .filter((m): m is string => typeof m === "string" && m.trim().length > 0)
     .slice(0, 60)
     .reverse();
   const conversation = messages.join("\n");
-  const fallback = (): ResolvePaymentMethodResult<T> => ({
-    method: exact,
-    chosenByCustomer: !!exact && statedByCustomer(exact, messages),
-    source: "fallback",
-  });
+  const fallback = (): ResolvePaymentMethodResult<T> => {
+    if (exact && statedByCustomer(exact, messages)) {
+      return { method: exact, chosenByCustomer: true, source: "fallback" };
+    }
+    // Never lose a choice the customer already made earlier.
+    if (remembered) {
+      return { method: remembered, chosenByCustomer: true, source: "remembered" };
+    }
+    return { method: exact, chosenByCustomer: false, source: "fallback" };
+  };
 
   const key = input.lovableApiKey;
   const doFetch = input.fetchImpl ?? fetch;
@@ -135,6 +155,15 @@ export async function resolvePaymentMethodChoice<T extends PaymentMethodLike>(
     conversation,
     "",
     `The sales agent believes the customer chose: "${input.requested}"`,
+    ...(remembered
+      ? [
+          "",
+          `Earlier in THIS conversation the customer already chose: "${remembered.name}". ` +
+            "That choice still stands unless they clearly changed it. A later message about the AMOUNT " +
+            "(e.g. 'هدفع مقدم' = pay a deposit) or a plain agreement ('توكل', 'تمام', 'ماشي') is NOT a change " +
+            "of method: keep returning that method with stated_by_customer=true.",
+        ]
+      : []),
   ].join("\n");
 
   try {

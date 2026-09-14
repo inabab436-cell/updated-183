@@ -95,3 +95,45 @@ describe("resolvePaymentMethodChoice", () => {
     expect(r.method).toBeNull();
   });
 });
+
+describe("remembered choice", () => {
+  it("keeps the earlier choice when the latest messages only mention the amount", async () => {
+    const { impl } = aiFetch({ method_index: -1, stated_by_customer: false });
+    const r = await resolvePaymentMethodChoice({
+      lovableApiKey: "k",
+      requested: "فودافون كاش",
+      methods: METHODS,
+      customerMessages: ["هدفع مقدم", "توكل"],
+      previouslyChosen: "فودافون كاش",
+      fetchImpl: impl,
+    });
+    expect(r.method?.name).toBe("فودافون كاش");
+    expect(r.chosenByCustomer).toBe(true);
+    expect(r.source).toBe("remembered");
+  });
+
+  it("still refuses when there is no earlier choice", async () => {
+    const { impl } = aiFetch({ method_index: -1, stated_by_customer: false });
+    const r = await resolvePaymentMethodChoice({
+      lovableApiKey: "k",
+      requested: "فودافون كاش",
+      methods: METHODS,
+      customerMessages: ["توكل"],
+      fetchImpl: impl,
+    });
+    expect(r.method).toBeNull();
+  });
+
+  it("tells the model about the earlier choice", async () => {
+    const { impl, calls } = aiFetch({ method_index: 1, stated_by_customer: true });
+    await resolvePaymentMethodChoice({
+      lovableApiKey: "k",
+      requested: "فودافون كاش",
+      methods: METHODS,
+      customerMessages: ["هدفع مقدم"],
+      previouslyChosen: "فودافون كاش",
+      fetchImpl: impl,
+    });
+    expect(calls[0].messages[1].content).toContain("already chose");
+  });
+});
