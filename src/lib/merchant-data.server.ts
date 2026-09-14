@@ -530,26 +530,3 @@ export function buildPaymentMethodsBlock(rows: PaymentMethodRow[]): string {
     "- If the chosen method is تلقائي (auto), keep the conversation going normally.\n"
   );
 }
-
-/**
- * Merchant-chosen AI agent identity (name + grammatical gender).
- * Degrades to "not chosen" if the columns are not migrated yet.
- */
-export async function loadAgentIdentity(
-  admin: SupabaseClient,
-  merchantId: string,
-): Promise<{ name: string | null; gender: "male" | "female" | "unspecified" }> {
-  try {
-    const { data } = await admin
-      .from("merchants")
-      .select("agent_name, agent_gender")
-      .eq("id", merchantId)
-      .maybeSingle();
-    const m = (data ?? {}) as Record<string, unknown>;
-    const name = clean(m.agent_name) || null;
-    const g = clean(m.agent_gender);
-    return { name, gender: g === "male" || g === "female" ? g : "unspecified" };
-  } catch {
-    return { name: null, gender: "unspecified" };
-  }
-}
