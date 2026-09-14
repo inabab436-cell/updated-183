@@ -25,6 +25,13 @@ export interface ResolvePaymentMethodInput<T extends PaymentMethodLike = Payment
   methods: T[];
   /** Every message the CUSTOMER typed in this conversation (newest first is fine). */
   customerMessages: Array<string | null | undefined>;
+  /**
+   * The payment method the customer ALREADY settled on earlier in this same
+   * conversation, read from the persisted structured order state. A later
+   * message that only talks about the amount ("هدفع مقدم") or simply agrees
+   * ("توكل") must not erase that choice and send the agent back to re-asking.
+   */
+  previouslyChosen?: string | null;
   /** Injectable for tests. */
   fetchImpl?: typeof fetch;
 }
