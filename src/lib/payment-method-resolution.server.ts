@@ -41,7 +41,7 @@ export interface ResolvePaymentMethodResult<T extends PaymentMethodLike = Paymen
   method: T | null;
   /** True when the CUSTOMER themselves expressed this method (not assumed). */
   chosenByCustomer: boolean;
-  source: "exact" | "ai" | "fallback";
+  source: "exact" | "ai" | "fallback" | "remembered";
 }
 
 import { fuzzyPick, nameMatchScore } from "./fuzzy-match";
